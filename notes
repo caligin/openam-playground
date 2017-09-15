@@ -1,0 +1,64 @@
+# todo configure
+- auth chain with a store module
+- default realm with the correct hostnaming etc
+- an ldap store
+- an extra opendj
+
+# test configuration notes
+
+## /etc/hosts req
+
+`172.28.128.11 openam.anima.tech openam01.anima.tech`
+
+## password
+
+password
+
+## cookies
+
+- http://openam01.anima.tech:8080
+- .anima.tech
+- en_GB
+- /usr/share/tomcat/openam
+
+## openam01 config store data
+- 50389 port
+- 4444 admin
+- 1689 jmx
+- k6aF/sEp1bJpV9wa0YsUK5XGX1xZuF7T ek 
+- dc=openam,dc=forgerock,dc=org root suffix
+
+## user store
+- openam data store (eugh)
+
+## site
+- no for now
+
+## agent
+- amagent12 (won't be using it anyway)
+
+
+# observed defaults
+
+- default realm with a chain named `ldapService` is default
+  - haz a single `DataStore` instance
+- bind password for embedded store is same as amadmin password
+
+
+## working datastore config
+
+- localhost:389
+- binddn: cn=Manager,dc=ldap,dc=anima,dc=tech
+- bindpw: secret
+- ldap orgdn: dc=ldap,dc=anima,dc=tech
+- attr of user status: carLicense
+- persistent search base dn: dc=ldap,dc=anima,dc=tech
+
+leave everything else at default
+
+## commands
+
+- to search: ldapsearch -x -D 'cn=Manager,dc=ldap,dc=anima,dc=tech' -w secret -b 'dc=ldap,dc=anima,dc=tech'  '(objectclass=*)'
+- to nuke openam: sudo find / -name '*openam*' -exec rm -rf {} \;
+- to nuke ldap: sudo find /etc/openldap/slapd.d/ -mindepth 1  -delete
+

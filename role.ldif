@@ -1,0 +1,9 @@
+dn: dc=ldap,dc=anima,dc=tech
+objectclass: dcObject
+objectclass: organization
+o: AnIMA
+dc: ldap
+
+dn: cn=Manager,dc=ldap,dc=anima,dc=tech
+objectclass: organizationalRole
+cn: Manager

@@ -1,0 +1,8 @@
+dn: cn=demouser,dc=ldap,dc=anima,dc=tech
+objectclass: inetorgperson
+givenName: mario
+uid: demouser
+sn: demousersn
+carLicense: Active
+#inetUserStatus: Active
+# cheating: using carlicense for active/inactive status to avoid wasting too much time understanding openam schemas

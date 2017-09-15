@@ -1,4 +1,5 @@
 .vagrant
 *.war
 *.swp
+*.zip
 /deps/
