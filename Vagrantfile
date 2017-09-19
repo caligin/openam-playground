@@ -10,6 +10,7 @@ Vagrant.configure("2") do |config|
   config.vm.provision "file", source: "role.ldif", destination: "role.ldif"
   config.vm.provision "file", source: "user.ldif", destination: "user.ldif"
   config.vm.provision "file", source: "configuration", destination: "configuration"
+  config.vm.provision "file", source: "gneldap.config", destination: "gneldap.config"
   config.vm.provision "file", source: "deps", destination: "deps"
   config.vm.provision "shell", inline: "rpm --import file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7"
   config.vm.provision "shell", inline: "yum install -y java-1.8.0-openjdk-headless.x86_64 tomcat net-tools openldap-clients openldap-servers vim"
@@ -26,7 +27,11 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: "systemctl enable tomcat.service"
   config.vm.provision "shell", inline: "ldapadd -x -D 'cn=Manager,dc=ldap,dc=anima,dc=tech' -w secret -f role.ldif"
   config.vm.provision "shell", inline: "ldapadd -x -D 'cn=Manager,dc=ldap,dc=anima,dc=tech' -w secret -f user.ldif"
-  config.vm.provision "shell", inline: "timeout 180s bash -c 'while true; do curl localhost:8080 && break || sleep 0.5; done' && java -jar deps/openam-configurator-tool-12.0.0.jar -f configuration"
+  config.vm.provision "shell", inline: "timeout 180s bash -c 'while true; do curl localhost:8080 && break || sleep 0.5; done' && java -jar deps/configurator/openam-configurator-tool-12.0.0.jar -f configuration"
+  config.vm.provision "shell", inline: "cd deps/admintools && JAVA_HOME=/usr/lib/jvm/jre-1.8.0-openjdk/ ./setup --acceptLicense -p /usr/share/tomcat/webapps/openam"
+  config.vm.provision "shell", inline: "echo password > pwd"
+  config.vm.provision "shell", inline: "chmod 400 pwd" # important or the tool refuses to work
+  config.vm.provision "shell", inline: "deps/admintools/openam/bin/ssoadm  create-datastore -e / -u amadmin -f pwd -m gneldap -D gneldap.config -t LDAPv3"
 
   config.vm.define "cluster01" do |cluster01|
     cluster01.vm.network "private_network", ip: "172.28.128.11"
@@ -37,14 +42,5 @@ Vagrant.configure("2") do |config|
     cluster02.vm.network "private_network", ip: "172.28.128.12"
     cluster02.vm.provision "shell", inline: "hostnamectl set-hostname cluster02"
   end
-
-# TODO
-# - need to configure openldap
-# - remember to chown shit or nothing starts
-# - it requires to either disable selinux or set it to allow cerain dirs
-# - tbh here openldap is not the goal so go for setenforce 0 to go permissive mode
-# - grab the openam configurator stuff
-
-
 
 end
