@@ -9,7 +9,8 @@ Vagrant.configure("2") do |config|
   config.vm.provision "file", source: "slapd.ldif", destination: "slapd.ldif"
   config.vm.provision "file", source: "role.ldif", destination: "role.ldif"
   config.vm.provision "file", source: "user.ldif", destination: "user.ldif"
-  config.vm.provision "file", source: "configuration", destination: "configuration"
+  config.vm.provision "file", source: "configuration01", destination: "configuration01"
+  config.vm.provision "file", source: "configuration02", destination: "configuration02"
   config.vm.provision "file", source: "gneldap.config", destination: "gneldap.config"
   config.vm.provision "file", source: "deps", destination: "deps"
   config.vm.provision "shell", inline: "rpm --import file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7"
@@ -27,11 +28,12 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: "systemctl enable tomcat.service"
   config.vm.provision "shell", inline: "ldapadd -x -D 'cn=Manager,dc=ldap,dc=anima,dc=tech' -w secret -f role.ldif"
   config.vm.provision "shell", inline: "ldapadd -x -D 'cn=Manager,dc=ldap,dc=anima,dc=tech' -w secret -f user.ldif"
-  config.vm.provision "shell", inline: "timeout 180s bash -c 'while true; do curl localhost:8080 && break || sleep 0.5; done' && java -jar deps/configurator/openam-configurator-tool-12.0.0.jar -f configuration"
+  config.vm.provision "shell", inline: "timeout 180s bash -c 'while true; do curl localhost:8080 && break || sleep 0.5; done' && java -jar deps/configurator/openam-configurator-tool-12.0.0.jar -f configuration0$(ifconfig | grep 172.28.128.1 | tr -s ' ' | cut -d ' ' -f 3 | rev | head -c1)"
   config.vm.provision "shell", inline: "cd deps/admintools && JAVA_HOME=/usr/lib/jvm/jre-1.8.0-openjdk/ ./setup --acceptLicense -p /usr/share/tomcat/webapps/openam"
+  config.vm.provision "shell", inline: "systemctl restart tomcat.service" # important or the clustered config does not kick in properly
   config.vm.provision "shell", inline: "echo password > pwd"
   config.vm.provision "shell", inline: "chmod 400 pwd" # important or the tool refuses to work
-  config.vm.provision "shell", inline: "deps/admintools/openam/bin/ssoadm  create-datastore -e / -u amadmin -f pwd -m gneldap -D gneldap.config -t LDAPv3"
+  config.vm.provision "shell", inline: "ifconfig | grep 172.28.128.11 && (timeout 180s bash -c 'while true; do curl localhost:8080 && break || sleep 0.5; done' && deps/admintools/openam/bin/ssoadm  create-datastore -e / -u amadmin -f pwd -m gneldap -D gneldap.config -t LDAPv3) || true" # need to do only on first instance, will be replicated to the cluster
 
   config.vm.define "cluster01" do |cluster01|
     cluster01.vm.network "private_network", ip: "172.28.128.11"

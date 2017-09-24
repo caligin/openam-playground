@@ -38,7 +38,7 @@
 ###
 #############################################################################
 # FIXME encryption key is hardcoded for the spike, must not be here when we get sirius ofc
-SERVER_URL=http://openam01.anima.tech:8080
+SERVER_URL=http://openam02.anima.tech:8080
 DEPLOYMENT_URI=/openam
 BASE_DIR=/usr/share/tomcat/webapps/openam
 locale=en_GB
@@ -127,12 +127,12 @@ DS_DIRMGRPASSWD=password
 ### http://server2.example.com:8080/openam
 ###
 ##############################################################################
-#DS_EMB_REPL_FLAG=embReplFlag
-#DS_EMB_REPL_REPLPORT1=58989
-#DS_EMB_REPL_HOST2=server2.example.com
-#DS_EMB_REPL_ADMINPORT2=4444
-#DS_EMB_REPL_REPLPORT2=50889
-#existingserverid=http://server1.example.com:8080/openam
+DS_EMB_REPL_FLAG=embReplFlag
+DS_EMB_REPL_REPLPORT1=58989
+DS_EMB_REPL_HOST2=openam01.anima.tech
+DS_EMB_REPL_ADMINPORT2=4444
+DS_EMB_REPL_REPLPORT2=58989
+existingserverid=http://openam01.anima.tech:8080/openam
 
 
 ##############################################################################
@@ -206,6 +206,6 @@ DS_DIRMGRPASSWD=password
 ### the site configuration. Set to "true" to enable SFO.
 ###
 ##############################################################################
-#LB_SITE_NAME=lb
-#LB_PRIMARY_URL=http://lb.example.com:80/openam
-#LB_SESSION_HA_SFO=false
+LB_SITE_NAME=lb
+LB_PRIMARY_URL=http://openam.anima.tech:8080/openam
+LB_SESSION_HA_SFO=true
